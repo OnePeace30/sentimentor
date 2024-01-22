@@ -22,15 +22,18 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-            Describe the attitude of the auther of the post based on the post text, when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral. Answer number only! 
-            Post text: {post[1]}
+            Describe the attitude of the auther of the post based on the post text, when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral. Answer number only, it very impotant! Post text: {post[1]}
         """
         # clear the chat
         b.requests = ""
         # send first message
         b.send(prompt)
         # get the last cloud messsage
-        score = int(b.message.strip())
+        try:
+            score = int(b.message.strip())
+        except:
+            logger.error("EXCEPTION in main", exc_info=True)
+            score = 0
         # send second message with context of first
         b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
         if b.message.strip() == 'True':
@@ -66,7 +69,5 @@ def update_row(uid, score, defamatory):
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except Exception:
-        logger.error("EXCEPTION in main", exc_info=True)
+    main()
+    
