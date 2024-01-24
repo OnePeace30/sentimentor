@@ -49,7 +49,7 @@ def main():
 def get_posts():
     with connection() as cursor:
         cursor.execute(f"""
-            SELECT id, post_text FROM snpi_company_posts
+            SELECT id, post_text FROM snpi_employee_posts
             where score is null
             order by random()
             --limit 5
@@ -60,7 +60,7 @@ def get_posts():
 def update_row(uid, score, defamatory):
     with connection() as cursor:
         cursor.execute(f"""
-            UPDATE snpi_company_posts SET score = %s,
+            UPDATE snpi_employee_posts SET score = %s,
             defamatory = %s 
             WHERE id = %s
         """, (score, defamatory, uid))
