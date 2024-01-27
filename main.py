@@ -52,7 +52,7 @@ def main():
             logger.error("exception", exc_info=True)
             plans_to_expand = None
         # logger.info(f"{score}, {defamatory}")
-        update_row(post[0], [reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand])
+        update_row(post[0], reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand)
 
 
 def get_posts():
@@ -66,14 +66,14 @@ def get_posts():
         rows = cursor.fetchall()
         return rows
     
-def update_row(uid, arg):
+def update_row(uid, reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand):
     with connection() as cursor:
         cursor.execute(f"""
             UPDATE snpi_about_company SET reaction_to_attacks = %s,
             donations_due_to_the_attacks = %s,
             plans_to_expand
             WHERE id = %s
-        """, (*arg, uid))
+        """, (reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand, uid))
 
 
 
