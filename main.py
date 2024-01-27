@@ -16,13 +16,14 @@ logger.addHandler(handler)
 
 def main():
     # class Bedrock chat
-    b = AWSBoto('anthropic.claude-instant-v1')
+    b = AWSBoto('anthropic.claude-v2')
     all_posts = get_posts()
     logger.info(f"count posts - {len(all_posts)}")
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-            Describe the attitude of the auther of the post based on the post text, when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral. Answer number only, it very impotant! Post text: {post[1]}
+            Please tell how "{post[1]}" reacted to the attacks on israel on the 7th of october?
+            for answers, use publicly available resources on the Internet
         """
         # clear the chat
         b.requests = ""
@@ -30,40 +31,49 @@ def main():
         b.send(prompt)
         # get the last cloud messsage
         try:
-            score = int(b.message.strip())
+            logger.info(b.message)
+            reaction_to_attacks = b.message
         except:
             logger.error("EXCEPTION in main", exc_info=True)
-            score = 0
+            reaction_to_attacks = None
         # send second message with context of first
-        b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
-        if b.message.strip() == 'True':
-            defamatory = True
-        elif b.message.strip() == 'False':
-            defamatory = False
-        else:
-            defamatory = None
-        logger.info(f"{score}, {defamatory}")
-        update_row(post[0], score, defamatory)
+        b.send(f"""did "{post[1]}" made donations due to the attacks on israel on the 7th of october? for answers, use publicly available resources on the Internet""")
+        try:
+            logger.info(b.message)
+            donations_due_to_the_attacks = b.message
+        except:
+            logger.error("exception", exc_info=True)
+            donations_due_to_the_attacks = None
+        b.send(f"""does "{post[1]}" plan to expand its work in israel? for answers, use publicly available resources on the Internet""")
+        try:
+            logger.info(b.message)
+            plans_to_expand = b.message
+        except:
+            logger.error("exception", exc_info=True)
+            plans_to_expand = None
+        # logger.info(f"{score}, {defamatory}")
+        update_row(post[0], [reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand])
 
 
 def get_posts():
     with connection() as cursor:
         cursor.execute(f"""
-            SELECT id, post_text FROM snpi_employee_posts
-            where score is null
+            SELECT id, company_name FROM snpi_about_company
+            where reaction_to_attacks is null
             order by random()
-            --limit 5
+            limit 5
         """)
         rows = cursor.fetchall()
         return rows
     
-def update_row(uid, score, defamatory):
+def update_row(uid, arg):
     with connection() as cursor:
         cursor.execute(f"""
-            UPDATE snpi_employee_posts SET score = %s,
-            defamatory = %s 
+            UPDATE snpi_about_company SET reaction_to_attacks = %s,
+            donations_due_to_the_attacks = %s,
+            plans_to_expand
             WHERE id = %s
-        """, (score, defamatory, uid))
+        """, (*arg, uid))
 
 
 
