@@ -22,7 +22,7 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-            Please tell how "{post[1]}" reacted to the attacks on israel on the 7th of october?
+            Please review {post[1]}  Approach and Strategy in Israel 
             for answers, use publicly available resources on the Internet
         """
         # clear the chat
@@ -37,14 +37,14 @@ def main():
             logger.error("EXCEPTION in main", exc_info=True)
             reaction_to_attacks = None
         # send second message with context of first
-        b.send(f"""did "{post[1]}" made donations due to the attacks on israel on the 7th of october? for answers, use publicly available resources on the Internet""")
+        b.send(f"""Please review Recent News on {post[1]} Activities in Israel. for answers, use publicly available resources on the Internet""")
         try:
             logger.info(b.message)
             donations_due_to_the_attacks = b.message
         except:
             logger.error("exception", exc_info=True)
             donations_due_to_the_attacks = None
-        b.send(f"""does "{post[1]}" plan to expand its work in israel? for answers, use publicly available resources on the Internet""")
+        b.send(f"""Please review {post[1]} Attitude Towards Conflicts and Global Challenges, in particullary on Israel-Hamas conflict. for answers, use publicly available resources on the Internet""")
         try:
             logger.info(b.message)
             plans_to_expand = b.message
@@ -61,7 +61,7 @@ def get_posts():
             SELECT id, company_name FROM snpi_about_company
             where reaction_to_attacks is null
             order by random()
-            limit 5
+            --limit 5
         """)
         rows = cursor.fetchall()
         return rows
@@ -71,7 +71,7 @@ def update_row(uid, reaction_to_attacks, donations_due_to_the_attacks, plans_to_
         cursor.execute(f"""
             UPDATE snpi_about_company SET reaction_to_attacks = %s,
             donations_due_to_the_attacks = %s,
-            plans_to_expand
+            plans_to_expand = %s
             WHERE id = %s
         """, (reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand, uid))
 
