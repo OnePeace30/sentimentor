@@ -60,7 +60,7 @@ def get_posts():
         cursor.execute(f"""
             SELECT id, company_name FROM snpi_about_company
             where reaction_to_attacks is null
-            order by random()
+            order by "employeeCount" desc
             --limit 5
         """)
         rows = cursor.fetchall()
