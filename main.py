@@ -14,10 +14,10 @@ logger.addHandler(handler)
 
 
 
-def main():
+def main(i):
     # class Bedrock chat
     b = AWSBoto('anthropic.claude-v2')
-    all_posts = get_posts()
+    all_posts = get_posts(i)
     logger.info(f"count posts - {len(all_posts)}")
     for post in all_posts:
         logger.info(post[0])
@@ -55,13 +55,14 @@ def main():
         update_row(post[0], reaction_to_attacks, donations_due_to_the_attacks, plans_to_expand)
 
 
-def get_posts():
+def get_posts(i):
     with connection() as cursor:
         cursor.execute(f"""
             SELECT id, company_name FROM snpi_about_company
             where reaction_to_attacks is null
             order by "employeeCount" desc
-            --limit 5
+            limit 25
+                       offset {i * 25}
         """)
         rows = cursor.fetchall()
         return rows
@@ -79,5 +80,13 @@ def update_row(uid, reaction_to_attacks, donations_due_to_the_attacks, plans_to_
 
 
 if __name__ == '__main__':
-    main()
+    import threading
+    ts = []
+    for i in range(0, 20):
+        t = threading.Thread(target=main, args=(i,))
+        t.start()
+        ts.append(t)
+    for t in ts:
+        t.join()
+    # main()
     
