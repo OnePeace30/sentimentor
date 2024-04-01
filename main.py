@@ -22,7 +22,12 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-            Describe the attitude of the auther of the post based on the post text, when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral. Answer number only, it very impotant! Post text: {post[1]}
+            you are taking the role of an analyst that is rating the post text,
+       Answer numbers only,no words (-10 to 10)
+       when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral.
+       from -10 to 10 ,
+       Answer number only,this is very important!
+       Post text: {post[1]}
         """
         # clear the chat
         b.requests = ""
@@ -35,35 +40,34 @@ def main():
             logger.error("EXCEPTION in main", exc_info=True)
             score = 0
         # send second message with context of first
-        b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
-        if b.message.strip() == 'True':
-            defamatory = True
-        elif b.message.strip() == 'False':
-            defamatory = False
-        else:
-            defamatory = None
-        logger.info(f"{score}, {defamatory}")
-        update_row(post[0], score, defamatory)
+        # b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
+        # if b.message.strip() == 'True':
+        #     defamatory = True
+        # elif b.message.strip() == 'False':
+        #     defamatory = False
+        # else:
+        #     defamatory = None
+        logger.info(f"{score}")
+        update_row(post[0], score)
 
 
 def get_posts():
     with connection() as cursor:
         cursor.execute(f"""
-            SELECT id, post_text FROM snpi_employee_posts
-            where score is null
+            SELECT id, post_text FROM snpi_company_posts
+            where score_new is null
             order by random()
             --limit 5
         """)
         rows = cursor.fetchall()
         return rows
     
-def update_row(uid, score, defamatory):
+def update_row(uid, score):
     with connection() as cursor:
         cursor.execute(f"""
-            UPDATE snpi_employee_posts SET score = %s,
-            defamatory = %s 
+            UPDATE snpi_company_posts SET score_new = %s,
             WHERE id = %s
-        """, (score, defamatory, uid))
+        """, (score, uid))
 
 
 
