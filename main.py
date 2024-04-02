@@ -22,12 +22,12 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-            you are taking the role of an analyst that is rating the post text,
-       Answer numbers only,no words (-10 to 10)
-       when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral.
-       from -10 to 10 ,
-       Answer number only,this is very important!
-       Post text: {post[1]}
+As an AI analyst, I need you to rate the sentiment of the following post text on a scale from -10 to 10(please anwser only numbers):
+         -10: Indicates a strong sentiment in favor of Palestine or Gaza.
+         10: Represents a strong sentiment in favor of Israel.
+         0: Denotes a neutral stance, neither favoring Palestine/Gaza nor Israel.
+
+        Post text: {post[1]}
         """
         # clear the chat
         b.requests = ""
