@@ -22,23 +22,24 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-As an AI analyst, I need you to rate the sentiment of the following post text on a scale from -10 to 10(please anwser only numbers):
-         -10: Indicates a strong sentiment in favor of Palestine or Gaza.
-         10: Represents a strong sentiment in favor of Israel.
-         0: Denotes a neutral stance, neither favoring Palestine/Gaza nor Israel.
-
-        Post text: {post[1]}
+            "{post[1]}" - Is this role is AI related? Answer only true or false
         """
         # clear the chat
         b.requests = ""
         # send first message
         b.send(prompt)
         # get the last cloud messsage
-        try:
-            score = int(b.message.strip())
-        except:
-            logger.error("EXCEPTION in main", exc_info=True)
-            score = 0
+        logger.info(f"{post[1]} - {b.message}")
+        m = b.message.strip()
+        if m in ('True', 'true', 'yes'):
+            score = True
+        else:
+            score = False
+        # try:
+        #     score = int(b.message.strip())
+        # except:
+        #     logger.error("EXCEPTION in main", exc_info=True)
+        #     score = 0
         # send second message with context of first
         # b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
         # if b.message.strip() == 'True':
@@ -47,17 +48,17 @@ As an AI analyst, I need you to rate the sentiment of the following post text on
         #     defamatory = False
         # else:
         #     defamatory = None
-        logger.info(f"{score}")
+        # logger.info(f"{score}")
         update_row(post[0], score)
 
 
 def get_posts():
     with connection() as cursor:
         cursor.execute(f"""
-            SELECT id, post_text FROM snpi_company_posts
-            where score_new is null
+            SELECT id, position FROM mati_employees
+            where is_ai is null
             order by random()
-            --limit 5
+            limit 5
         """)
         rows = cursor.fetchall()
         return rows
@@ -65,7 +66,7 @@ def get_posts():
 def update_row(uid, score):
     with connection() as cursor:
         cursor.execute(f"""
-            UPDATE snpi_company_posts SET score_new = %s,
+            UPDATE mati_employees SET is_ai = %s
             WHERE id = %s
         """, (score, uid))
 

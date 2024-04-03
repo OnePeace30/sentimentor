@@ -16,7 +16,7 @@ def connection():
         cursor = con.cursor()
         yield cursor
     except Exception as err:
-        pass
+        raise
     finally:
         con.commit()
         con.close()
