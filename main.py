@@ -58,7 +58,7 @@ def get_posts():
             SELECT id, position FROM mati_employees
             where is_ai is null
             order by random()
-            limit 5
+            --limit 5
         """)
         rows = cursor.fetchall()
         return rows
