@@ -12,12 +12,11 @@ def connection():
             user=config('FB_USER', cast=str), 
             password=config('FB_PWD', cast=str), 
             host=config('FB_HOST', cast=str),
-            port=6432
         )
         cursor = con.cursor()
         yield cursor
     except Exception as err:
-        pass
+        raise
     finally:
         con.commit()
         con.close()
