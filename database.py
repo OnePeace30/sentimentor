@@ -11,7 +11,8 @@ def connection():
             dbname=config('FB_NAME', cast=str), 
             user=config('FB_USER', cast=str), 
             password=config('FB_PWD', cast=str), 
-            host=config('FB_HOST', cast=str)
+            host=config('FB_HOST', cast=str),
+            port=6432
         )
         cursor = con.cursor()
         yield cursor
