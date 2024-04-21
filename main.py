@@ -22,12 +22,7 @@ def main():
     for post in all_posts:
         logger.info(post[0])
         prompt = f"""
-As an AI analyst, I need you to rate the sentiment of the following post text on a scale from -10 to 10(please anwser only numbers):
-         -10: Indicates a strong sentiment in favor of Palestine or Gaza.
-         10: Represents a strong sentiment in favor of Israel.
-         0: Denotes a neutral stance, neither favoring Palestine/Gaza nor Israel.
-
-        Post text: {post[1]}
+            Describe the attitude of the auther of the post based on the post text, when -10 is pro Palistine/pro Gaza and 10 is Pro Israel, 0 is neutral. Answer number only, it very impotant! Post text: {post[1]}
         """
         # clear the chat
         b.requests = ""
@@ -40,38 +35,36 @@ As an AI analyst, I need you to rate the sentiment of the following post text on
             logger.error("EXCEPTION in main", exc_info=True)
             score = 0
         # send second message with context of first
-        # b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
-        # if b.message.strip() == 'True':
-        #     defamatory = True
-        # elif b.message.strip() == 'False':
-        #     defamatory = False
-        # else:
-        #     defamatory = None
-        logger.info(f"{score}")
-        update_row(post[0], score)
+        b.send("Is this post is defamatory towards Isarel people or jews? Answer only True or False.")
+        if b.message.strip() == 'True':
+            defamatory = True
+        elif b.message.strip() == 'False':
+            defamatory = False
+        else:
+            defamatory = None
+        logger.info(f"{score}, {defamatory}")
+        update_row(post[0], score, defamatory)
 
 
 def get_posts():
     with connection() as cursor:
         cursor.execute(f"""
-            SELECT id, post_text FROM snpi_company_posts
-            where score_new is null
+            SELECT id, post_text FROM snpi_employee_posts
+            where score is null
             order by random()
             --limit 5
         """)
         rows = cursor.fetchall()
         return rows
     
-def update_row(uid, score):
+def update_row(uid, score, defamatory):
     with connection() as cursor:
         cursor.execute(f"""
-            UPDATE snpi_company_posts SET score_new = %s,
+            UPDATE snpi_employee_posts SET score = %s,
+            defamatory = %s 
             WHERE id = %s
-        """, (score, uid))
-
-
+        """, (score, defamatory, uid))
 
 
 if __name__ == '__main__':
     main()
-    
